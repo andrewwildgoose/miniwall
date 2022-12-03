@@ -1,16 +1,23 @@
 const express = require('express')
 const router = express.Router()
+const jsonwebtoken = require('jsonwebtoken')
 
-//data schema
+//data schemas
 const Post = require('../models/post')
+const User = require('../models/User')
 
 // token verification
 const verifyToken = require('../verifyToken')
 
 //POST receive post data and send to database
 router.post('/new', verifyToken, async(req,res)=>{
+    // find user making the action
+    const decoded = jsonwebtoken.verify(req.header('auth-token'), process.env.TOKEN_SECRET);  
+    var userId = decoded._id  
+    const user = await User.findById(userId)
+    
     const postData = new Post({
-        user:req.body.user,
+        user:user.username,
         title:req.body.title,
         text:req.body.text,
         hashtag:req.body.hashtag,
@@ -47,19 +54,15 @@ router.get('/:postId', verifyToken, async(req,res)=>{
 
 //PATCH update a post
 router.patch('/:postId', verifyToken, async(req,res)=>{
-    const postData = new Post({
-        user:req.body.user,
-        title:req.body.title,
-        text:req.body.text,
-        hashtag:req.body.hashtag,
-        location:req.body.location,
-        comment: {user:req.body.user, text:req.body.text}
-    })
+    // find user making the action
+    const decoded = jsonwebtoken.verify(req.header('auth-token'), process.env.TOKEN_SECRET);  
+    var userId = decoded._id  
+    const user = await User.findById(userId)
     try{
         const updatePostById = await Post.updateOne(
             {_id:req.params.postId},
             {$set:{
-                user:req.body.user,
+                user:user.username,
                 title:req.body.title,
                 text:req.body.text,
                 hashtag:req.body.hashtag,
@@ -74,14 +77,24 @@ router.patch('/:postId', verifyToken, async(req,res)=>{
 
 //PATCH add a comment to a post
 router.patch('/:postId/comment', verifyToken, async(req,res)=>{
-    const commentData = new Post({
-        comments: {user:req.body.user, text:req.body.text}
-    })
+    // find user making the action
+    const decoded = jsonwebtoken.verify(req.header('auth-token'), process.env.TOKEN_SECRET);  
+    var userId = decoded._id  
+    const user = await User.findById(userId)
+    
+    // find the root post that is being commented on
+    const rootPost = await Post.findById({_id:req.params.postId})
+
+    // Check for user trying to comment on their own post 
+    if (user.username === rootPost.user){
+        return res.status(401).send({message:'you cannot comment on your own post'})
+    }
+
     try{
         const addComment = await Post.updateOne(
-            {_id:req.params.postId},
+            {_id:rootPost},
             {$push:{
-                comments: {user:req.body.user, text:req.body.text}
+                comments: {user:user.username, text:req.body.text}
                 }
             })
         res.send(addComment)     
