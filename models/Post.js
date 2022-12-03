@@ -1,5 +1,6 @@
 const { string } = require("joi")
 const mongoose = require("mongoose")
+const User = require("./User")
 
 const postSchema = mongoose.Schema({
     user:{

@@ -8,7 +8,7 @@ const Post = require('../models/post')
 const verifyToken = require('../verifyToken')
 
 //POST receive post data and send to database
-router.post('/', verifyToken, async(req,res)=>{
+router.post('/new', verifyToken, async(req,res)=>{
     const postData = new Post({
         user:req.body.user,
         title:req.body.title,
@@ -52,7 +52,8 @@ router.patch('/:postId', verifyToken, async(req,res)=>{
         title:req.body.title,
         text:req.body.text,
         hashtag:req.body.hashtag,
-        location:req.body.location
+        location:req.body.location,
+        comment: {user:req.body.user, text:req.body.text}
     })
     try{
         const updatePostById = await Post.updateOne(
@@ -71,5 +72,22 @@ router.patch('/:postId', verifyToken, async(req,res)=>{
     }
 })
 
+//PATCH add a comment to a post
+router.patch('/:postId/comment', verifyToken, async(req,res)=>{
+    const commentData = new Post({
+        comments: {user:req.body.user, text:req.body.text}
+    })
+    try{
+        const addComment = await Post.updateOne(
+            {_id:req.params.postId},
+            {$push:{
+                comments: {user:req.body.user, text:req.body.text}
+                }
+            })
+        res.send(addComment)     
+    }catch(err){
+        res.send({message:err})
+    }
+})
 
 module.exports = router

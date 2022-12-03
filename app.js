@@ -12,9 +12,12 @@ app.use(bodyParser.json())
 
 const postsRoute = require('./routes/posts')
 const authRoute = require('./routes/auth')
+//const commentsRoute = require('./routes/comments')
+
 
 app.use('/api/posts', postsRoute)
 app.use('/api/user', authRoute)
+//app.use('api/posts/:_id/comment', commentsRoute)
 
 //homepage route
 app.get('/', (req,res)=>{
