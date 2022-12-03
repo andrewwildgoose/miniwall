@@ -36,7 +36,13 @@ router.post('/new', verifyToken, async(req,res)=>{
 router.get('/', verifyToken, async(req,res)=>{
     try{
         const getPosts = await Post.find()
-        res.send(getPosts)
+        const sortedPosts = getPosts.sort((a, b) => {
+            if (a.likes === b.likes){
+                return a.date > b.date ? -1 : 1
+            }
+            return parseFloat(b.likes) - parseFloat(a.likes)
+        })
+        res.send(sortedPosts)
     }catch(err){
         res.send({message:err})
     }
@@ -58,15 +64,24 @@ router.patch('/:postId', verifyToken, async(req,res)=>{
     const decoded = jsonwebtoken.verify(req.header('auth-token'), process.env.TOKEN_SECRET);  
     var userId = decoded._id  
     const user = await User.findById(userId)
+
+    // find the root post that is being updated
+    const rootPost = await Post.findById({_id:req.params.postId})
+
+    // Check for user trying to update a post they didn't make 
+    if (user.username != rootPost.user){
+        return res.status(401).send({message:'you cannot edit a post you did not create'})
+    }
     try{
         const updatePostById = await Post.updateOne(
-            {_id:req.params.postId},
+            {_id:rootPost},
             {$set:{
                 user:user.username,
                 title:req.body.title,
                 text:req.body.text,
                 hashtag:req.body.hashtag,
-                location:req.body.location
+                location:req.body.location,
+                updated:true
                 }
             })
         res.send(updatePostById)     

@@ -1,4 +1,4 @@
-const { string } = require("joi")
+const { string, bool } = require("joi")
 const mongoose = require("mongoose")
 const User = require("./User")
 
@@ -48,6 +48,10 @@ const postSchema = mongoose.Schema({
     date:{
         type:Date,
         default:Date.now
+    },
+    updated:{
+        type:Boolean,
+        default:false
     }
 })
 
