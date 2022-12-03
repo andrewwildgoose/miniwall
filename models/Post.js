@@ -27,6 +27,7 @@ const postSchema = mongoose.Schema({
         type:Number,
         default:0
     },
+    likeIDs:[String],
     comments:[
         {
             user:{

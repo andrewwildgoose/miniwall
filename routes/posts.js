@@ -103,4 +103,41 @@ router.patch('/:postId/comment', verifyToken, async(req,res)=>{
     }
 })
 
+//PATCH add a like to a post
+router.patch('/:postId/like', verifyToken, async(req,res)=>{
+    // find user making the action
+    const decoded = jsonwebtoken.verify(req.header('auth-token'), process.env.TOKEN_SECRET);  
+    var userId = decoded._id  
+    const user = await User.findById(userId)
+    
+    // find the root post that is being liked
+    const rootPost = await Post.findById({_id:req.params.postId})
+
+    // Check for user trying to like their own post 
+    if (user.username === rootPost.user){
+        return res.status(401).send({message:'you cannot like your own post'})
+    }
+
+    //Check for user trying to like a post more than once
+    if (rootPost.likeIDs.includes(user.id)){
+        return res.status(401).send({message:'you already liked this post'})
+    }
+    
+    try{
+        const addLike = await Post.updateOne(
+            {_id:rootPost},
+            {$inc:{
+                likes:1
+                },
+            $push:{
+                likeIDs:user.id
+                }
+            }
+        )
+        res.send(addLike)     
+    }catch(err){
+        res.send({message:err})
+    }
+})
+
 module.exports = router
