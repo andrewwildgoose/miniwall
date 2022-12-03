@@ -32,13 +32,13 @@ router.post('/new', verifyToken, async(req,res)=>{
     
 })
 
-//GET get all posts back to view
+//GET sort and get all posts back to view
 router.get('/', verifyToken, async(req,res)=>{
     try{
         const getPosts = await Post.find()
         const sortedPosts = getPosts.sort((a, b) => {
             if (a.likes === b.likes){
-                return a.date > b.date ? -1 : 1
+                return a.date > b.date ? 1 : -1
             }
             return parseFloat(b.likes) - parseFloat(a.likes)
         })
