@@ -1,7 +1,9 @@
+// import database package, type definitions and User data schema  
 const { string, bool } = require("joi")
 const mongoose = require("mongoose")
 const User = require("./User")
 
+// Schema defining data model of a Post
 const postSchema = mongoose.Schema({
     user:{
         type:String,
@@ -27,7 +29,9 @@ const postSchema = mongoose.Schema({
         type:Number,
         default:0
     },
-    likeIDs:[String],
+    likeIDs:[
+        String
+    ],
     comments:[
         {
             user:{

@@ -1,23 +1,23 @@
-//import the libraries
+// import the libraries
 const express = require('express')
 const { restart } = require('nodemon')
 const app = express()
 const mongoose = require('mongoose')
 
+// pointer to the required config file for dotenv package
 require('dotenv/config')
 
-//json data parser
+// json data parser
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
+// creating and assigning the routes to the two main branches of the app.
 const postsRoute = require('./routes/posts')
 const authRoute = require('./routes/auth')
-//const commentsRoute = require('./routes/comments')
-
 
 app.use('/api/posts', postsRoute)
 app.use('/api/user', authRoute)
-//app.use('api/posts/:_id/comment', commentsRoute)
+
 
 //homepage route
 app.get('/', (req,res)=>{

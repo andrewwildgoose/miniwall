@@ -1,5 +1,7 @@
+// import jwt package
 const jsonwebtoken = require('jsonwebtoken')
 
+// define function to use jwt across all endpoints of the API
 function auth(req,res,next){
     const token = req.header('auth-token')
     if(!token){
