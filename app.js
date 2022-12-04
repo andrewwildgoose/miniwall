@@ -21,7 +21,7 @@ app.use('/api/user', authRoute)
 
 //homepage route
 app.get('/', (req,res)=>{
-    res.send('You are in your homepage')
+    res.send('Welcome to MiniWall')
 })
 
 //database connection
