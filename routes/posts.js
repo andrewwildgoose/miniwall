@@ -4,7 +4,7 @@ const router = express.Router()
 const jsonwebtoken = require('jsonwebtoken')
 
 //data schemas
-const Post = require('../models/post')
+const Post = require('../models/Post')
 const User = require('../models/User')
 
 // pointer to token verification process
